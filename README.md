@@ -119,3 +119,9 @@ table=1,priority=100,actions=drop
 
 ```
 
+#### [OF PORT] sao as portas encontradas em sudo ovs-ofctl show ovs-br1
+
+
+
+
+
