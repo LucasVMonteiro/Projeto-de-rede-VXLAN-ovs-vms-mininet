@@ -46,30 +46,76 @@ sudo apt install -y openvswitch-switch docker.io mininet
 
 ## Configurando OvS e Docker -- Repita o procedimento para VM1 e VM2, 
 
-#CRIAR BRIDGE
+1 - Criar Bridge no OvS
 
 
 sudo ovs-vsctl add-br ovs-br1
 
-#CRIAR CONTAINERs
+2 - Criar Containers
 
 
 sudo docker run --name container1 -dit --net=none alpine
 
 sudo docker run --name container2 -dit --net=none alpine
 
-#CONECTAR CONTAINERs A BRIDGE
+3 - Conectar containers a bridge
 
+
+### Ao adicionar a porta de um container execute sudo ovs-vsctl show e veja qual foi adicionada
+### exemplo: container1 interface ABCDEFG
 
 sudo ovs-docker add-port ovs-br1 eth0 container1 --ipaddress=10.20.30.2/24 --gateway=10.20.30.1 --macaddress="00:00:00:00:00:01"
 
 sudo ovs-docker add-port ovs-br1 eth0 container2 --ipaddress=10.20.30.2/24 --gateway=10.20.30.1 --macaddress="00:00:00:00:00:02"
 
 
-#CRIAR PORTA INTERFACE VXLAN
+4 - Criar porta para vxlan0 e vxlan1
+
+### Em remote_ip coloque o ip da outra VM
+### exemplo: se estiver configurando na VM1 coloque o ip da VM2
 
 
 sudo ovs-vsctl add-port ovs-br1 vxlan0 -- set interface vxlan0 type=vxlan options:remote_ip=[IP_VM_EXTERNA] options:key=100
 
 sudo ovs-vsctl add-port ovs-br1 vxlan1 -- set interface vxlan1 type=vxlan options:remote_ip=[IP_VM_EXTERNA] options:key=200
+
+
+5 - Criando regras de fluxo
+
+#### Caso esteja na VM1
+
+```
+table=0,in_port=[OF PORT],actions=set_field:100->tun_id,resubmit(,1)
+table=0,in_port=[OF PORT],actions=set_field:200->tun_id,resubmit(,1)
+table=0,actions=resubmit(,1)
+
+table=1,tun_id=100,dl_dst=[mac do container 1],actions=output:[OF PORT]
+table=1,tun_id=200,dl_dst=[mac do container 2],actions=output:[OF PORT]
+table=1,tun_id=100,dl_dst=[mac do container 3],actions=output:[OF PORT]
+table=1,tun_id=200,dl_dst=[mac do container 4],actions=output:[OF PORT]
+table=1,tun_id=100,arp,nw_dst=10.20.30.2,actions=output:[OF PORT]
+table=1,tun_id=200,arp,nw_dst=10.20.30.2,actions=output:[OF PORT]
+table=1,tun_id=100,arp,nw_dst=10.20.30.3,actions=output:[OF PORT]
+table=1,tun_id=200,arp,nw_dst=10.20.30.3,actions=output:[OF PORT]
+table=1,priority=100,actions=drop
+```
+
+#### Caso esteja na VM2
+
+```
+table=0,in_port=[OF PORT],actions=set_field:100->tun_id,resubmit(,1)
+table=0,in_port=[OF PORT],actions=set_field:200->tun_id,resubmit(,1)
+table=0,actions=resubmit(,1)
+
+table=1,tun_id=100,dl_dst=[mac do container 3],actions=output:[OF PORT]
+table=1,tun_id=200,dl_dst=[mac do container 4],actions=output:[OF PORT]
+table=1,tun_id=100,dl_dst=[mac do container 1],actions=output:[OF PORT]
+table=1,tun_id=200,dl_dst=[mac do container 2],actions=output:[OF PORT]
+table=1,tun_id=100,arp,nw_dst=10.20.30.3,actions=output:[OF PORT]
+table=1,tun_id=200,arp,nw_dst=10.20.30.3,actions=output:[OF PORT]
+table=1,tun_id=100,arp,nw_dst=10.20.30.2,actions=output:[OF PORT]
+table=1,tun_id=200,arp,nw_dst=10.20.30.2,actions=output:[OF PORT]
+table=1,priority=100,actions=drop
+
+```
 
