@@ -43,5 +43,33 @@ sudo apt install -y openvswitch-switch docker.io
 
 sudo apt install -y openvswitch-switch docker.io mininet
 
-4 - 
+
+## Configurando OvS e Docker -- Repita o procedimento para VM1 e VM2, 
+
+#CRIAR BRIDGE
+
+
+sudo ovs-vsctl add-br ovs-br1
+
+#CRIAR CONTAINERs
+
+
+sudo docker run --name container1 -dit --net=none alpine
+
+sudo docker run --name container2 -dit --net=none alpine
+
+#CONECTAR CONTAINERs A BRIDGE
+
+
+sudo ovs-docker add-port ovs-br1 eth0 container1 --ipaddress=10.20.30.2/24 --gateway=10.20.30.1 --macaddress="00:00:00:00:00:01"
+
+sudo ovs-docker add-port ovs-br1 eth0 container2 --ipaddress=10.20.30.2/24 --gateway=10.20.30.1 --macaddress="00:00:00:00:00:02"
+
+
+#CRIAR PORTA INTERFACE VXLAN
+
+
+sudo ovs-vsctl add-port ovs-br1 vxlan0 -- set interface vxlan0 type=vxlan options:remote_ip=[IP_VM_EXTERNA] options:key=100
+
+sudo ovs-vsctl add-port ovs-br1 vxlan1 -- set interface vxlan1 type=vxlan options:remote_ip=[IP_VM_EXTERNA] options:key=200
 
