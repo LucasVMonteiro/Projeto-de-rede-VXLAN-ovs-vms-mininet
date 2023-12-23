@@ -16,3 +16,14 @@ Projeto de uma simples rede vxlan que conecta containers
 |VM1          |[Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server)|         2048| 2                 |1           |NAT1       |
 |VM2          |[Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server)|         2048| 2                 |1           |NAT2       |
 |VM-mininet   |[Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server)|         2048| 2                 |2           |NAT1 & NAT2|
+
+|Pacotes usado| VM               |
+|------------:|-----------------:|
+|Open vSwitch |VM1 VM2 VM-mininet|
+|Docker       |VM1 VM2 VM-mininet|
+|Mininet      |VM1 VM2           |
+
+
+1- Crie as VMs usando as especificacoes da tabela acima
+
+2- 
