@@ -60,14 +60,14 @@ O projeto envolve tres maquinas virtuais, uma com mininet que une as duas VMs po
 
 3 - Conectar containers a bridge
 
-
-### Ao adicionar a porta de um container execute sudo ovs-vsctl show e veja qual foi adicionada
-### exemplo: container1 interface ABCDEFG
+Ao adicionar um container ao OvS, verifique atraves de ``` sudo ovs-ofctl show ovs-br1 ``` qual foi a nova interface criada e anote.
 
 ```sudo ovs-docker add-port ovs-br1 eth0 container1 --ipaddress=10.20.30.2/24 --gateway=10.20.30.1 --macaddress="00:00:00:00:00:01"```
 
 ```sudo ovs-docker add-port ovs-br1 eth0 container2 --ipaddress=10.20.30.2/24 --gateway=10.20.30.1 --macaddress="00:00:00:00:00:02"```
-
+Exemplo:
+![Captura de tela 2023-12-26 160215](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/d65bd276-027a-4e61-9d62-488b2c6a9191)
+A interface adicionada se chama 655f584cf11d4_l, esta na porta 1, e conectada ao container3. Essa informação é util para montar as regras de fluxo.
 
 4 - Criar porta para vxlan0 e vxlan1
 
@@ -85,36 +85,36 @@ O projeto envolve tres maquinas virtuais, uma com mininet que une as duas VMs po
 #### Caso esteja na VM1
 
 ```
-table=0,in_port=[OF PORT],actions=set_field:100->tun_id,resubmit(,1)
-table=0,in_port=[OF PORT],actions=set_field:200->tun_id,resubmit(,1)
+table=0,in_port=[OF PORT container 1],actions=set_field:100->tun_id,resubmit(,1)
+table=0,in_port=[OF PORT container 2],actions=set_field:200->tun_id,resubmit(,1)
 table=0,actions=resubmit(,1)
 
-table=1,tun_id=100,dl_dst=[mac do container 1],actions=output:[OF PORT]
-table=1,tun_id=200,dl_dst=[mac do container 2],actions=output:[OF PORT]
-table=1,tun_id=100,dl_dst=[mac do container 3],actions=output:[OF PORT]
-table=1,tun_id=200,dl_dst=[mac do container 4],actions=output:[OF PORT]
-table=1,tun_id=100,arp,nw_dst=10.20.30.2,actions=output:[OF PORT]
-table=1,tun_id=200,arp,nw_dst=10.20.30.2,actions=output:[OF PORT]
-table=1,tun_id=100,arp,nw_dst=10.20.30.3,actions=output:[OF PORT]
-table=1,tun_id=200,arp,nw_dst=10.20.30.3,actions=output:[OF PORT]
+table=1,tun_id=100,dl_dst=[mac do container 1],actions=output:[OF PORT container 1]
+table=1,tun_id=200,dl_dst=[mac do container 2],actions=output:[OF PORT container 2]
+table=1,tun_id=100,dl_dst=[mac do container 3],actions=output:[OF PORT vxlan0]
+table=1,tun_id=200,dl_dst=[mac do container 4],actions=output:[OF PORT vxlan1]
+table=1,tun_id=100,arp,nw_dst=10.20.30.3,actions=output:[OF PORT container 1]
+table=1,tun_id=200,arp,nw_dst=10.20.30.3,actions=output:[OF PORT container 2]
+table=1,tun_id=100,arp,nw_dst=10.20.30.2,actions=output:[OF PORT vxlan0]
+table=1,tun_id=200,arp,nw_dst=10.20.30.2,actions=output:[OF PORT vxlan1]
 table=1,priority=100,actions=drop
 ```
 
 #### Caso esteja na VM2
 
 ```
-table=0,in_port=[OF PORT],actions=set_field:100->tun_id,resubmit(,1)
-table=0,in_port=[OF PORT],actions=set_field:200->tun_id,resubmit(,1)
+table=0,in_port=[OF PORT container 3],actions=set_field:100->tun_id,resubmit(,1)
+table=0,in_port=[OF PORT container 4],actions=set_field:200->tun_id,resubmit(,1)
 table=0,actions=resubmit(,1)
 
-table=1,tun_id=100,dl_dst=[mac do container 3],actions=output:[OF PORT]
-table=1,tun_id=200,dl_dst=[mac do container 4],actions=output:[OF PORT]
-table=1,tun_id=100,dl_dst=[mac do container 1],actions=output:[OF PORT]
-table=1,tun_id=200,dl_dst=[mac do container 2],actions=output:[OF PORT]
-table=1,tun_id=100,arp,nw_dst=10.20.30.3,actions=output:[OF PORT]
-table=1,tun_id=200,arp,nw_dst=10.20.30.3,actions=output:[OF PORT]
-table=1,tun_id=100,arp,nw_dst=10.20.30.2,actions=output:[OF PORT]
-table=1,tun_id=200,arp,nw_dst=10.20.30.2,actions=output:[OF PORT]
+table=1,tun_id=100,dl_dst=[mac do container 3],actions=output:[OF PORT container 3]
+table=1,tun_id=200,dl_dst=[mac do container 4],actions=output:[OF PORT container 4]
+table=1,tun_id=100,dl_dst=[mac do container 1],actions=output:[OF PORT vxlan0]
+table=1,tun_id=200,dl_dst=[mac do container 2],actions=output:[OF PORT vxlan1]
+table=1,tun_id=100,arp,nw_dst=10.20.30.2,actions=output:[OF PORT container 3]
+table=1,tun_id=200,arp,nw_dst=10.20.30.2,actions=output:[OF PORT container 4]
+table=1,tun_id=100,arp,nw_dst=10.20.30.3,actions=output:[OF PORT vxlan0]
+table=1,tun_id=200,arp,nw_dst=10.20.30.3,actions=output:[OF PORT vxlan1]
 table=1,priority=100,actions=drop
 
 ```
