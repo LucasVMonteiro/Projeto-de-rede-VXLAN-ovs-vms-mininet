@@ -82,6 +82,28 @@ A interface adicionada se chama 655f584cf11d4_l, esta na porta 1, e conectada ao
 
 5 - Criando regras de fluxo
 
+Aqui utilizaremos as informaçoes sobre o numero da porta conectada ao container A e B.
+
+A regra de fluxo pode ser armazenada em um arquivo de texto, portanto crie um com o nome que desejar
+em seguida vamos escrever as regras:
+
+1-
+```table=0,in_port=[OF PORT container 1],actions=set_field:100->tun_id,resubmit(,1)```
+table=0 significa regras de entrada, tudo que entra na porta contida em in_port é direcionado para o tunel 100 da vxlan
+
+```table=0,in_port=[OF PORT container 2],actions=set_field:200->tun_id,resubmit(,1) ```
+o mesmo, no a porta de entrada é do container b e toma o tunel 200 da vxlan.
+``` ```
+``` ```
+``` ```
+``` ```
+``` ```
+``` ```
+``` ```
+``` ```
+``` ```
+``` ```
+###Aqui as regras completas e separadas para vm1 e vm2.
 #### Caso esteja na VM1
 
 ```
