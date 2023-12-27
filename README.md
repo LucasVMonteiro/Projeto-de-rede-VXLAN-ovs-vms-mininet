@@ -82,18 +82,38 @@ A interface adicionada se chama 655f584cf11d4_l, esta na porta 1, e conectada ao
 
 5 - Criando regras de fluxo
 
-Aqui utilizaremos as informaçoes sobre o numero da porta conectada ao container A e B.
+As regras de fluxo como o nome já diz, ditam a forma que o tráfego dentro do switch tem que assumir, elas são parte do protocolo OpenFlow e podem ser encontradas neste [link](https://opennetworking.org/wp-content/uploads/2013/04/openflow-spec-v1.3.1.pdf) mais especificamente no capitulo 5.
+
+Nesta etapa vamos criar regras de fluxo para direcionar o fluxo de dados dos containers para um túnel vxlan, encaminhar os pacotes tunelados para os devidos containers e redirecionar os pacotes ARP.
+
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/fdb25fa0-e689-49fc-a4d9-d6703b3e2374)
+
+Elas tem uma ordem de prioridade, sendo aquelas com tag "table=0" com maior prioridade(executadas primeiro) ate a n-ésima ordem de prioridade
+
+
 
 A regra de fluxo pode ser armazenada em um arquivo de texto, portanto crie um com o nome que desejar
 em seguida vamos escrever as regras:
-
-1-
+Aqui utilizaremos as informaçoes sobre o numero da porta conectada ao container A e B.
+1- Aplicando tunelamento ao trafego dos containers A e B.
 ```table=0,in_port=[OF PORT container 1],actions=set_field:100->tun_id,resubmit(,1)```
-table=0 significa regras de entrada, tudo que entra na porta contida em in_port é direcionado para o tunel 100 da vxlan
 
 ```table=0,in_port=[OF PORT container 2],actions=set_field:200->tun_id,resubmit(,1) ```
-o mesmo, no a porta de entrada é do container b e toma o tunel 200 da vxlan.
-``` ```
+
+``` table=0,actions=resubmit(,1) ```
+
+- table=0 : prioridade da regra, alta.
+- in_port=ofport : indica onde sera aplicada a regra, neste caso em uma porta OpenFlow que esta associada a interface conectada ao conteiner A.
+- actions= : define o conjuto de ações a serem tomadas
+- set_field:200->tun_id : a ação set_field define o túnel de ID 200, neste caso VID da vxlan, como regra para o pacote que chega na porta in_port.
+- resubmit : indica a proxima tabela de regras para os pacotes que nao se ajustam a primeira regra.
+  
+```
+table=1,tun_id=100,dl_dst=[mac do container 1],actions=output:[OF PORT container 1]
+table=1,tun_id=200,dl_dst=[mac do container 2],actions=output:[OF PORT container 2]
+
+```
+Aqui utilizaremos as informaçoes sobre o numero da porta conectada ao container A e B.
 ``` ```
 ``` ```
 ``` ```
