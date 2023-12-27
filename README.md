@@ -144,7 +144,7 @@ exemplo:
 
 
 
-###Aqui as regras completas e separadas para vm1 e vm2.
+### Aqui as regras completas e separadas para vm1 e vm2.
 #### Caso esteja na VM1
 
 ```
@@ -181,8 +181,7 @@ table=1,tun_id=200,arp,nw_dst=10.20.30.3,actions=output:[OF PORT vxlan1]
 table=1,priority=100,actions=drop
 
 ```
-
-#### [OF PORT] sao as portas encontradas em sudo ovs-ofctl show ovs-br1
+## Configurando Mininet
 
 
 
