@@ -88,7 +88,7 @@ Nesta etapa vamos criar regras de fluxo para direcionar o fluxo de dados dos con
 
 ![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/fdb25fa0-e689-49fc-a4d9-d6703b3e2374)
 
-Elas tem uma ordem de prioridade, sendo aquelas com tag "table=0" com maior prioridade(executadas primeiro) ate a n-ésima ordem de prioridade
+Elas tem uma ordem de prioridade, sendo aquelas com tag "table=0" executadas primeiro, ate a n-ésima ordem de execucao.
 
 
 
@@ -96,33 +96,54 @@ A regra de fluxo pode ser armazenada em um arquivo de texto, portanto crie um co
 em seguida vamos escrever as regras:
 Aqui utilizaremos as informaçoes sobre o numero da porta conectada ao container A e B.
 1- Aplicando tunelamento ao trafego dos containers A e B.
-```table=0,in_port=[OF PORT container 1],actions=set_field:100->tun_id,resubmit(,1)```
 
-```table=0,in_port=[OF PORT container 2],actions=set_field:200->tun_id,resubmit(,1) ```
+```
+     table=0,in_port=[OF PORT container 1],actions=set_field:100->tun_id,resubmit(,1)
+     table=0,in_port=[OF PORT container 2],actions=set_field:200->tun_id,resubmit(,1) 
+     table=0,actions=resubmit(,1)
+```
 
-``` table=0,actions=resubmit(,1) ```
-
-- table=0 : prioridade da regra, alta.
+- table=0 : ordem de execução, primeira a ser executada.
 - in_port=ofport : indica onde sera aplicada a regra, neste caso em uma porta OpenFlow que esta associada a interface conectada ao conteiner A.
 - actions= : define o conjuto de ações a serem tomadas
 - set_field:200->tun_id : a ação set_field define o túnel de ID 200, neste caso VID da vxlan, como regra para o pacote que chega na porta in_port.
 - resubmit : indica a proxima tabela de regras para os pacotes que nao se ajustam a primeira regra.
-  
+
+2- Direcionando o trafego que vem da vxlan e que tem um Mac de destino especifico para uma porta OF associada ao container.
 ```
 table=1,tun_id=100,dl_dst=[mac do container 1],actions=output:[OF PORT container 1]
 table=1,tun_id=200,dl_dst=[mac do container 2],actions=output:[OF PORT container 2]
+```
+- tabel=1 : a segunda regra a ser aplicada.
+- tun_id=100 : indicamos que a regra se aplica ao tráfego do tunel 100 e 200. VID.
+- dl_dst : indicamos que a regra se aplica ao tráfego que se destina ao MAC especificado, neste caso é o mac correspondente ao container.
+- actions=output:[portas] : como ação, redirecionamos para uma porta de saida, neste caso ela corresponde a porta do container.
+
+  
+```
+table=1,tun_id=100,dl_dst=[mac do container 3],actions=output:[OF PORT vxlan0]
+table=1,tun_id=200,dl_dst=[mac do container 4],actions=output:[OF PORT vxlan1]
 
 ```
-Aqui utilizaremos as informaçoes sobre o numero da porta conectada ao container A e B.
-``` ```
-``` ```
-``` ```
-``` ```
-``` ```
-``` ```
-``` ```
-``` ```
-``` ```
+Aqui aplicamos a regra de redirecionamento de tráfego para pacotes vxlan que se destinam a macs externos, no caso os containers de outra vm.
+Observe que a ação tomada é redirecionar para porta OF ligada a vxlan.
+
+
+3- Tratando do tráfego ARP, aplicamos aos tuneis vxlan que se destinam aos IPs dos containers para que eles vao para a porta do container A ou B, ou que saiam pela porta vxlan.
+```
+table=1,tun_id=100,arp,nw_dst=10.20.30.3,actions=output:[OF PORT container 1]
+table=1,tun_id=200,arp,nw_dst=10.20.30.3,actions=output:[OF PORT container 2]
+table=1,tun_id=100,arp,nw_dst=10.20.30.2,actions=output:[OF PORT vxlan0]
+table=1,tun_id=200,arp,nw_dst=10.20.30.2,actions=output:[OF PORT vxlan1]
+table=1,priority=100,actions=drop
+```
+exemplo: 
+
+```table=1,tun_id=100,arp,nw_dst=10.20.30.2,actions=output:[OF PORT vxlan0]```
+- todo trafego da vxlan com VID 100 e que tem como destino o ip 10.20.30.2( outro container) sai pela porta OF da vxlan0
+
+
+
 ###Aqui as regras completas e separadas para vm1 e vm2.
 #### Caso esteja na VM1
 
