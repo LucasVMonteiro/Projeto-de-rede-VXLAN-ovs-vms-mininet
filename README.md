@@ -206,10 +206,10 @@ table=1,tun_id=100,dl_dst=[mac do container 1],actions=output:[OF PORT container
 table=1,tun_id=200,dl_dst=[mac do container 2],actions=output:[OF PORT container 2]
 table=1,tun_id=100,dl_dst=[mac do container 3],actions=output:[OF PORT vxlan0]
 table=1,tun_id=200,dl_dst=[mac do container 4],actions=output:[OF PORT vxlan1]
-table=1,tun_id=100,arp,nw_dst=10.20.30.3,actions=output:[OF PORT container 1]
-table=1,tun_id=200,arp,nw_dst=10.20.30.3,actions=output:[OF PORT container 2]
-table=1,tun_id=100,arp,nw_dst=10.20.30.2,actions=output:[OF PORT vxlan0]
-table=1,tun_id=200,arp,nw_dst=10.20.30.2,actions=output:[OF PORT vxlan1]
+table=1,tun_id=100,arp,nw_dst=10.20.30.2,actions=output:[OF PORT container 1]
+table=1,tun_id=200,arp,nw_dst=10.20.30.2,actions=output:[OF PORT container 2]
+table=1,tun_id=100,arp,nw_dst=10.20.30.3,actions=output:[OF PORT vxlan0]
+table=1,tun_id=200,arp,nw_dst=10.20.30.3,actions=output:[OF PORT vxlan1]
 table=1,priority=100,actions=drop
 ```
 
@@ -224,10 +224,10 @@ table=1,tun_id=100,dl_dst=[mac do container 3],actions=output:[OF PORT container
 table=1,tun_id=200,dl_dst=[mac do container 4],actions=output:[OF PORT container 4]
 table=1,tun_id=100,dl_dst=[mac do container 1],actions=output:[OF PORT vxlan0]
 table=1,tun_id=200,dl_dst=[mac do container 2],actions=output:[OF PORT vxlan1]
-table=1,tun_id=100,arp,nw_dst=10.20.30.2,actions=output:[OF PORT container 3]
-table=1,tun_id=200,arp,nw_dst=10.20.30.2,actions=output:[OF PORT container 4]
-table=1,tun_id=100,arp,nw_dst=10.20.30.3,actions=output:[OF PORT vxlan0]
-table=1,tun_id=200,arp,nw_dst=10.20.30.3,actions=output:[OF PORT vxlan1]
+table=1,tun_id=100,arp,nw_dst=10.20.30.3,actions=output:[OF PORT container 3]
+table=1,tun_id=200,arp,nw_dst=10.20.30.3,actions=output:[OF PORT container 4]
+table=1,tun_id=100,arp,nw_dst=10.20.30.2,actions=output:[OF PORT vxlan0]
+table=1,tun_id=200,arp,nw_dst=10.20.30.2,actions=output:[OF PORT vxlan1]
 table=1,priority=100,actions=drop
 
 ```
