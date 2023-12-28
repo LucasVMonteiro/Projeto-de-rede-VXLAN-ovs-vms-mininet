@@ -423,4 +423,24 @@ Teste o ping entre a Container2 e Container4
     sudo docker exec container2 ping 10.20.30.3
 ```
 
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/799959b0-0bd8-4a6c-86b6-7f2bc94285db)
+
+## Verificando pacotes com TCPDUMP e Wireshark
+
+Vamos verificar o tráfego nas interfaces da VM-mininet, as interfaces analizadas tem ser a mesma que se conecta a NAT1 e a NAT2, no nosso caso
+NAT1 - enp0s8
+NAT2 - enp0s9
+
+para isso utilize
+
+```
+    sudo tcpdump -i enp0s8 -s 65535 -w saida_intf1
+    sudo tcpdump -i enp0s9 -s 65535 -w saida_intf2
+```
+
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/a2b4875f-53ae-450a-afb6-4b11d7090a43)
+
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/97cc6b5a-2d51-4de6-afcc-d860287abdce)
+
+
 
