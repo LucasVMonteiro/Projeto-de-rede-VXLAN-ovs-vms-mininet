@@ -17,6 +17,10 @@ O projeto envolve tres maquinas virtuais, uma com mininet que une as duas VMs po
 |------------:|------------:|------------:|
 |NAT1         |10.1.0.0/24|VM1 VM-mininet|
 |NAT2         |10.2.0.0/24|VM2 VM-mininet|
+
+- Para criar as redes nat no VirtualBox pressione Ctrl H:
+  ![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/e1f8f1a1-33f2-4556-bcb1-8d8db14c94d2)
+
 ---
 |Pacotes usado| VM               |
 |------------:|------------------|
