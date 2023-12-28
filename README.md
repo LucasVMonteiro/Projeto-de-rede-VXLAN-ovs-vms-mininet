@@ -54,17 +54,21 @@ O projeto envolve tres maquinas virtuais, uma com mininet que une as duas VMs po
 2 - Criar Containers
 
 
-```sudo docker run --name container1 -dit --net=none alpine```
+```
+sudo docker run --name container1 -dit --net=none alpine
 
-```sudo docker run --name container2 -dit --net=none alpine```
+sudo docker run --name container2 -dit --net=none alpine
+```
 
 3 - Conectar containers a bridge
 
 Ao adicionar um container ao OvS, verifique atraves de ``` sudo ovs-ofctl show ovs-br1 ``` qual foi a nova interface criada e anote.
 
-```sudo ovs-docker add-port ovs-br1 eth0 container1 --ipaddress=10.20.30.2/24 --gateway=10.20.30.1 --macaddress="00:00:00:00:00:01"```
+```
+sudo ovs-docker add-port ovs-br1 eth0 container1 --ipaddress=10.20.30.2/24 --gateway=10.20.30.1 --macaddress="00:00:00:00:00:01"
 
-```sudo ovs-docker add-port ovs-br1 eth0 container2 --ipaddress=10.20.30.2/24 --gateway=10.20.30.1 --macaddress="00:00:00:00:00:02"```
+sudo ovs-docker add-port ovs-br1 eth0 container2 --ipaddress=10.20.30.2/24 --gateway=10.20.30.1 --macaddress="00:00:00:00:00:02"
+```
 Exemplo:
 ![Captura de tela 2023-12-26 160215](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/d65bd276-027a-4e61-9d62-488b2c6a9191)
 A interface adicionada se chama 655f584cf11d4_l, esta na porta 1, e conectada ao container3. Essa informação é util para montar as regras de fluxo.
@@ -75,9 +79,10 @@ A interface adicionada se chama 655f584cf11d4_l, esta na porta 1, e conectada ao
 ### exemplo: se estiver configurando na VM1 coloque o ip da VM2
 
 
-```sudo ovs-vsctl add-port ovs-br1 vxlan0 -- set interface vxlan0 type=vxlan options:remote_ip=[IP_VM_EXTERNA] options:key=100```
-
-```sudo ovs-vsctl add-port ovs-br1 vxlan1 -- set interface vxlan1 type=vxlan options:remote_ip=[IP_VM_EXTERNA] options:key=200```
+```
+     sudo ovs-vsctl add-port ovs-br1 vxlan0 -- set interface vxlan0 type=vxlan options:remote_ip=[IP_VM_EXTERNA] options:key=100
+     sudo ovs-vsctl add-port ovs-br1 vxlan1 -- set interface vxlan1 type=vxlan options:remote_ip=[IP_VM_EXTERNA] options:key=200
+```
 
 
 5 - Criando regras de fluxo
