@@ -365,6 +365,7 @@ Se sua VM2 tem ip base 10.3.0.0/24
 
     sudo ip route add default via 10.3.0.254
 ```
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/15d2531d-50f1-4204-8ae5-3adccf5eae00)
 
 
 Verifique as tabelas de rota
@@ -375,23 +376,47 @@ Verifique as tabelas de rota
 
 
 
-5. Realizando teste.
+## Realizando teste.
 
 Ao finalizar todas as configurações vamos testar a comunição entre as VMs e em seguida entre os containers
 
+VM1
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/ff6a8e1b-28cc-4e07-932c-70bd465f3ea2)
+
+VM2
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/3e6af34b-adfb-4d17-8324-7cafc6af5ead)
+
 Teste o ping entre a VM1 e VM2
 ```
-    sudo ip r
+    ping 10.1.0.9
 ```
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/7cedcb56-2a08-43c0-9150-8a66c177333b)
 
-Lembrar que container1 esta na mesma rede vxlan que container3
+
+
+Lembre que container1 esta na mesma rede vxlan que container3
 assim como o 2 esta na mesma rede que o 4
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/45a5c3b1-3ad7-4b3e-b952-9704534f41de)
+
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/dbd0ca3e-0d46-4d66-8543-020a6e76b3ec)
+
+
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/2a4ed88d-70e1-4234-b9f4-391e21f4131f)
+
+
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/01438482-86ef-4d0e-9c8f-a8699b427d61)
+
+
+
 
 Teste o ping entre a Container1 e Container3
 ```
-    sudo docker exec container3 ping 10.20.30.3
+    sudo docker exec container1 ping 10.20.30.3
 ```
+
 Teste o ping entre a Container2 e Container4
 ```
     sudo docker exec container2 ping 10.20.30.3
 ```
+
+
