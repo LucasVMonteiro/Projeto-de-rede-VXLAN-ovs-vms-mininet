@@ -438,9 +438,20 @@ para isso utilize
     sudo tcpdump -i enp0s9 -s 65535 -w saida_intf2
 ```
 
+#### Observer abaixo que abri 4 janelas, as duas primeiras de cima sao a VM1 e VM2 respectivamente, já em baixo as duas janelas sao da vm-mininet, e cada uma eu executo o codigo acima.
+
 ![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/a2b4875f-53ae-450a-afb6-4b11d7090a43)
 
-![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/97cc6b5a-2d51-4de6-afcc-d860287abdce)
+
+No wireshark abra os arquivos saida_intf1 e saida_intf2, observe os pacotes VXLAN acima dos pacotes UDP, mostrando que a rede VXLAN é de overlay, ucupando camadas acima.
+
+- Repare no cabeçalho ipv4, ip de origem e destino, variam entre os ips da VM1 e VM2 ( 10.3.0.6 e 10.1.0.9 )
+- Repare no cabeçalho VXLAN, observe o VID
+- Repare no cabeçaho ETH II abaixo do VXLAN, mac de origem e destino.
+
+  Por fim temos a conexao entre containers de redes diferentes que passa por uma rede normal.
+
+  ![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/16967a36-91d7-4977-a2a5-57285a7b847e)
 
 
 
