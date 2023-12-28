@@ -332,7 +332,7 @@ Explicando a conexao entre interface e switch:
 _intf1 = Intf('enp0s8',node=net['s1'])
 _intf2 = Intf('enp0s9',node=net['s1'])
 ```
-dentro da VM-mininet eu verifico as interfaces utilizando "ip a"
+dentro da VM-mininet eu verifico as interfaces utilizando "ip l"
 
 ![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/ad3a1f52-4745-47d6-984f-88be4b13a0a2)
 
@@ -367,6 +367,31 @@ Se sua VM2 tem ip base 10.3.0.0/24
 ```
 
 
+Verifique as tabelas de rota
+```
+    sudo ip r
+```
 
 
 
+
+5. Realizando teste.
+
+Ao finalizar todas as configurações vamos testar a comunição entre as VMs e em seguida entre os containers
+
+Teste o ping entre a VM1 e VM2
+```
+    sudo ip r
+```
+
+Lembrar que container1 esta na mesma rede vxlan que container3
+assim como o 2 esta na mesma rede que o 4
+
+Teste o ping entre a Container1 e Container3
+```
+    sudo docker exec container3 ping 10.20.30.3
+```
+Teste o ping entre a Container2 e Container4
+```
+    sudo docker exec container2 ping 10.20.30.3
+```
