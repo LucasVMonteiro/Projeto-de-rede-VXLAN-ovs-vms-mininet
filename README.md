@@ -333,13 +333,38 @@ _intf1 = Intf('enp0s8',node=net['s1'])
 _intf2 = Intf('enp0s9',node=net['s1'])
 ```
 dentro da VM-mininet eu verifico as interfaces utilizando "ip a"
+
 ![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/ad3a1f52-4745-47d6-984f-88be4b13a0a2)
 
 através do MAC eu sei que enp0s8 é a interface conectada ao NAT1 e enp0s9 conectada ao NAT2. Para se certificar abra as propriedades de rede da sua VM.
+
 ![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/45bfab85-bd72-4ba9-8efe-deca66903d68)
+
 observe que o endereço MAC do adaptador2 é o mesmo da interface enp0s8
 
+Após customizar o codigo python com base na sua rede, execute ``` sudo python3 1switch1router.py ```
 
+
+## Configurando Tabela de rota VM1 e VM2.
+
+Como estamos conectando duas VMs de redes diferentes por meio do mininet, precisamos alterar o ip gateway da VM1 e VM2.
+O motivo é que por padrão a VM conectada a uma rede NAT tem como gateway o endereço 10.3.0.1 ou 10.2.0.1 
+portanto iremos alterar para o gateway que definimos no mininet, 10.3.0.254 e 10.2.0.254
+
+
+Se sua VM1 tem ip base 10.2.0.0/24
+```
+    sudo ip route del default via 10.2.0.1
+
+    sudo ip route add default via 10.2.0.254
+```
+
+Se sua VM2 tem ip base 10.3.0.0/24
+```
+    sudo ip route del default via 10.3.0.1
+
+    sudo ip route add default via 10.3.0.254
+```
 
 
 
