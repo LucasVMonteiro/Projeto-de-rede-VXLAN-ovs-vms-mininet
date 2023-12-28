@@ -381,10 +381,14 @@ Verifique as tabelas de rota
 Ao finalizar todas as configurações vamos testar a comunição entre as VMs e em seguida entre os containers
 
 VM1
-![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/ff6a8e1b-28cc-4e07-932c-70bd465f3ea2)
+
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/3e6af34b-adfb-4d17-8324-7cafc6af5ead)
+
 
 VM2
-![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/3e6af34b-adfb-4d17-8324-7cafc6af5ead)
+
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/ff6a8e1b-28cc-4e07-932c-70bd465f3ea2)
+
 
 Teste o ping entre a VM1 e VM2
 ```
