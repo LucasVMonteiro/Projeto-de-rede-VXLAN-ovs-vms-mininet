@@ -3,7 +3,8 @@ Projeto de uma simples rede vxlan que conecta containers
 
 O projeto envolve tres maquinas virtuais, uma com mininet que une as duas VMs por meio das duas redes NAT.
 
-![ imagem 1 - Vista completa da rede. ](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/136ca614-c56b-4216-9691-4efceaa9f82b)
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/cbd365be-04cf-48c7-94ba-53e527bd0016)
+
 
 
 - Tabela de containers, para facilitar use estes parametros.
@@ -454,4 +455,12 @@ No wireshark abra os arquivos saida_intf1 e saida_intf2, observe os pacotes VXLA
   ![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/16967a36-91d7-4977-a2a5-57285a7b847e)
 
 
+
+Informações:
+Instituto: IFPB
+Disciplina: Introdução a redes
+Professor: Paulo Ditarso
+Alunos:
+Lucas Vieira Monteiro - 20212610030
+Maria da Conceição Zelo Barbosa - 20212610013
 
