@@ -24,7 +24,22 @@ O projeto envolve tres maquinas virtuais, uma com mininet que une as duas VMs po
 |NAT2         |10.2.0.0/24|VM2 VM-mininet|
 
 - Para criar as redes nat no VirtualBox pressione Ctrl H:
+  
   ![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/e1f8f1a1-33f2-4556-bcb1-8d8db14c94d2)
+
+- Redes VM-Mininet
+  
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/d10b8b65-d32d-4630-93fd-3ce0dd96196d)
+
+- Rede VM1
+
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/8aa0fa85-faaf-44da-b19f-5835de41c7b1)
+
+  
+- Rede VM2
+  
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/dab6d74a-76f8-4381-a697-9838bd6db49a)
+
 
 ---
 
@@ -112,20 +127,20 @@ A interface adicionada se chama 655f584cf11d4_l, esta na porta 1, e conectada ao
 
 5 - Criando regras de fluxo
 
-As regras de fluxo como o nome já diz, ditam a forma que o tráfego dentro do switch tem que assumir, elas são parte do protocolo OpenFlow e podem ser encontradas neste [link](https://opennetworking.org/wp-content/uploads/2013/04/openflow-spec-v1.3.1.pdf) mais especificamente no capitulo 5.
+As regras de fluxo como o nome já diz, ditam a forma que o tráfego dentro do switch tem que assumir, elas são parte do protocolo OpenFlow e podem ser encontradas neste [link](https://opennetworking.org/wp-content/uploads/2013/04/openflow-spec-v1.3.1.pdf),capitulo 5.
 
 Nesta etapa vamos criar regras de fluxo para direcionar o fluxo de dados dos containers para um túnel vxlan, encaminhar os pacotes tunelados para os devidos containers e redirecionar os pacotes ARP.
 
 ![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/fdb25fa0-e689-49fc-a4d9-d6703b3e2374)
 
-Elas tem uma ordem de prioridade, sendo aquelas com tag "table=0" executadas primeiro, ate a n-ésima ordem de execucao.
+Elas tem uma ordem de execução, sendo aquelas com tag "table=0" executadas primeiro, ate a n-ésima ordem de execucao.
 
 
 
 A regra de fluxo pode ser armazenada em um arquivo de texto, portanto crie um com o nome que desejar
 em seguida vamos escrever as regras:
 Aqui utilizaremos as informaçoes sobre o numero da porta conectada ao container A e B.
-1- Aplicando tunelamento ao trafego dos containers A e B.
+1. Aplicando tunelamento ao trafego dos containers A e B.
 
 ```
      table=0,in_port=[OF PORT container 1],actions=set_field:100->tun_id,resubmit(,1)
@@ -139,7 +154,7 @@ Aqui utilizaremos as informaçoes sobre o numero da porta conectada ao container
 - set_field:200->tun_id : a ação set_field define o túnel de ID 200, neste caso VID da vxlan, como regra para o pacote que chega na porta in_port.
 - resubmit : indica a proxima tabela de regras para os pacotes que nao se ajustam a primeira regra.
 
-2- Direcionando o trafego que vem da vxlan e que tem um Mac de destino especifico para uma porta OF associada ao container.
+2. Direcionando o trafego que vem da vxlan e que tem um Mac de destino especifico para uma porta OF associada ao container.
 ```
 table=1,tun_id=100,dl_dst=[mac do container 1],actions=output:[OF PORT container 1]
 table=1,tun_id=200,dl_dst=[mac do container 2],actions=output:[OF PORT container 2]
@@ -159,7 +174,7 @@ Aqui aplicamos a regra de redirecionamento de tráfego para pacotes vxlan que se
 Observe que a ação tomada é redirecionar para porta OF ligada a vxlan.
 
 
-3- Tratando do tráfego ARP, aplicamos aos tuneis vxlan que se destinam aos IPs dos containers para que eles vao para a porta do container A ou B, ou que saiam pela porta vxlan.
+3. Tratando do tráfego ARP, aplicamos aos tuneis vxlan que se destinam aos IPs dos containers para que eles vao para a porta do container A ou B, ou que saiam pela porta vxlan.
 ```
 table=1,tun_id=100,arp,nw_dst=10.20.30.3,actions=output:[OF PORT container 1]
 table=1,tun_id=200,arp,nw_dst=10.20.30.3,actions=output:[OF PORT container 2]
@@ -172,7 +187,12 @@ exemplo:
 ```table=1,tun_id=100,arp,nw_dst=10.20.30.2,actions=output:[OF PORT vxlan0]```
 - todo trafego da vxlan com VID 100 e que tem como destino o ip 10.20.30.2( outro container) sai pela porta OF da vxlan0
 
+Ao concluir a montagem da tabela precisamos carregá-la no OvS:
 
+```
+sudo ovs-ofctl add-flows ovs-br1 regras_fluxo.txt
+```
+Para apagar as regras>``` sudo ovs-ofctl del-flows ovs-br1```
 
 ### Aqui as regras completas e separadas para vm1 e vm2.
 #### Caso esteja na VM1
@@ -212,6 +232,114 @@ table=1,priority=100,actions=drop
 
 ```
 ## Configurando Mininet
+
+No primeiro passo instalamos o Mininet, docker e OvS na maquina que possui o roteador virtual.
+
+Agora vamos utilizar o script que criará uma rede no mininet em que sera possivel estabelecer a conexão entre a VM1 e VM2
+
+Copie este codigo e salve no formato .py
+
+neste caso ele se chama 1switch1router.py
+
+```
+
+#!/usr/bin/env python
+
+from mininet.topo import Topo
+from mininet.net import Mininet
+from mininet.node import Node
+from mininet.log import setLogLevel, info
+from mininet.cli import CLI
+from mininet.link import Intf
+
+## Classe LinuxRouter é um roteador nativo do Linux.
+class LinuxRouter( Node ):
+    "A Node with IP forwarding enabled."
+
+    # pylint: disable=arguments-differ
+    def config( self, **params ):
+        super( LinuxRouter, self).config( **params )
+        # Enable forwarding on the router
+        self.cmd( 'sysctl net.ipv4.ip_forward=1' )
+
+    def terminate( self ):
+        self.cmd( 'sysctl net.ipv4.ip_forward=0' )
+        super( LinuxRouter, self ).terminate()
+
+
+class NetworkTopo( Topo ):
+    "A LinuxRouter connecting three IP subnets"
+
+    # pylint: disable=arguments-differ
+    def build( self, **_opts ):
+
+        ## IPS DO ROTEADOR PAR NAT1 E NAT2
+        defaultIPgws1 = '10.1.0.254/24'  # IP address for r0-eth1
+        defaultIPgws2 = '10.3.0.254/24'
+
+        
+        ## ADICIONANDO ROTEADOR
+        router = self.addNode( 'r0', cls=LinuxRouter, ip=defaultIPgws1 )
+
+        ## ADICIONANDO SWITCH OvS , NOME DA BRIDGE = s1
+        s1 = self.addSwitch('s1')
+
+
+        ## CRIANDO DUAS INTERFACES NO SWITCH, CADA UMA CONECTADA AO MESMO ROTEADOR, REPRESENTANDO DUAS REDES.
+        self.addLink( s1, router, intfName1='s1-r0-eth1', intfName2='r0-eth1',
+                      params2={ 'ip' : defaultIPgws1 } )  # for clarity
+        self.addLink( s1, router, intfName1='s1-r0-eth2', intfName2='r0-eth2',
+                      params2={ 'ip' : defaultIPgws2 } )  # for clarity
+
+        ## CRIANDO DOIS HOSTS, PARA FINS DE TESTES. NAO NECESSARIO
+        h1 = self.addHost( 'h1', ip='10.1.0.220/24',
+                           defaultRoute= 'via {}'.format(defaultIPgws1[0:-3]))
+        h2 = self.addHost( 'h2', ip='10.3.0.220/24',
+                           defaultRoute= 'via {}'.format(defaultIPgws2[0:-3]))
+
+        ## LINK ENTRE SWITCH E HOST VIRTUAL
+        self.addLink(s1,h1, intfName1='s1-h1-eth0')
+        self.addLink(s1,h2, intfName1='s1-h2-eth0')
+
+
+def run():
+    "Test linux router"
+    topo = NetworkTopo()
+    net = Mininet( topo=topo,
+                   waitConnected=True )  # controller is used by s1-s3
+
+
+    ## Aqui, substitua enp0s8 e enp0s9 pela interface conectada a NAT1 e NAT2.
+    _intf1 = Intf('enp0s8',node=net['s1']) ## este comando substitui > sudo ovs-vsctl add-port ovs-br1 enp0s8 
+    _intf2 = Intf('enp0s9',node=net['s1'])
+
+    net.start()
+    info( '*** Routing Table on Router:\n' )
+    info( net[ 'r0' ].cmd( 'route' ) )
+    CLI( net )
+    net.stop()
+
+
+if __name__ == '__main__':
+    setLogLevel( 'info' )
+    run()
+
+
+```
+
+Explicando a conexao entre interface e switch:
+```
+_intf1 = Intf('enp0s8',node=net['s1'])
+_intf2 = Intf('enp0s9',node=net['s1'])
+```
+dentro da VM-mininet eu verifico as interfaces utilizando "ip a"
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/ad3a1f52-4745-47d6-984f-88be4b13a0a2)
+
+através do MAC eu sei que enp0s8 é a interface conectada ao NAT1 e enp0s9 conectada ao NAT2. Para se certificar abra as propriedades de rede da sua VM.
+![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/45bfab85-bd72-4ba9-8efe-deca66903d68)
+observe que o endereço MAC do adaptador2 é o mesmo da interface enp0s8
+
+
 
 
 
