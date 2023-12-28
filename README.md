@@ -1,10 +1,12 @@
 # Projeto-de-rede-VXLAN-ovs-vms-mininet
 Projeto de uma simples rede vxlan que conecta containers
 
-O projeto envolve tres maquinas virtuais, uma com mininet que une as duas VMs por meio das duas redes NAT,
+O projeto envolve tres maquinas virtuais, uma com mininet que une as duas VMs por meio das duas redes NAT.
 
 ![ imagem 1 - Vista completa da rede. ](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/136ca614-c56b-4216-9691-4efceaa9f82b)
 
+
+- Tabela de containers, para facilitar use estes parametros.
 
 | Container   | IP          | VID         | MAC               |VM         |
 |------------:|------------:|------------:|------------------:|:----------|
@@ -12,7 +14,10 @@ O projeto envolve tres maquinas virtuais, uma com mininet que une as duas VMs po
 |Container2   |10.20.30.2/24|          200| 00:00:00:00:00:02 |VM1        |
 |Container3   |10.20.30.3/24|          100| 00:00:00:00:00:03 |VM2        |
 |Container4   |10.20.30.3/24|          200| 00:00:00:00:00:04 |VM2        |
+
 ---
+É necessario criar duas redes NATs para isolar a VM1 da VM2.
+
 | REDE        | IP          | VM          | 
 |------------:|------------:|------------:|
 |NAT1         |10.1.0.0/24|VM1 VM-mininet|
@@ -22,17 +27,33 @@ O projeto envolve tres maquinas virtuais, uma com mininet que une as duas VMs po
   ![image](https://github.com/LucasVMonteiro/Projeto-de-rede-VXLAN-ovs-vms-mininet/assets/59663614/e1f8f1a1-33f2-4556-bcb1-8d8db14c94d2)
 
 ---
+
+Veja os pacotes de software utilizado e onde se aplica.
+
 |Pacotes usado| VM               |
 |------------:|------------------|
 |Open vSwitch |VM1 VM2 VM-mininet|
 |Docker       |VM1 VM2 VM-mininet|
 |Mininet      |VM1 VM2           |
+
 ---
+Utilize esta imagem ISO para todas as VMs envolvidas.
+
 | VM          | Imagem      | RAM         | CPUs              |NICs        |Rede       | Interface Modo Promiscuo |
 |------------:|------------:|------------:|------------------:|-----------:|:----------|:----------|
 |VM1          |[Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server)|         2048| 2                 |1           |NAT1       |sim|
 |VM2          |[Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server)|         2048| 2                 |1           |NAT2       |sim|
 |VM-mininet   |[Ubuntu Server 22.04 LTS](https://ubuntu.com/download/server)|         2048| 2                 |2           |NAT1 & NAT2|sim|
+
+# Estrutura do guia:
+
+1. Instalação dos pacotes.
+2. Configuração do OvS e Docker para VM1 e VM2.
+3. Configurando o Mininet.
+4. Configurando Tabela de rota VM1 e VM2.
+5. Realizando teste.
+6. Verificando pacotes com TCPDUMP.
+
 
 ## Instalacao de pacotes
 
