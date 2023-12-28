@@ -82,7 +82,13 @@ Utilize esta imagem ISO para todas as VMs envolvidas.
 
 3 - Instale os pacotes na VM-mininet:
 
-``` sudo apt install -y openvswitch-switch docker.io mininet ```
+```
+sudo apt install -y openvswitch-switch docker.io mininet
+
+git clone https://github.com/mininet/mininet
+
+mininet/util/install.sh -fw 
+```
 
 
 ## Configurando OvS e Docker -- Repita o procedimento para VM1 e VM2, 
